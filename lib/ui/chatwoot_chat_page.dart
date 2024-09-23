@@ -34,6 +34,9 @@ class ChatwootChat extends StatefulWidget {
 
   /// Custom user details to be attached to chatwoot contact
   final ChatwootUser? user;
+  
+  /// Initial message to be sent when chat opens up
+  final String? initialMessage;
 
   /// See [ChatList.onEndReached]
   final Future<void> Function()? onEndReached;
@@ -120,6 +123,7 @@ class ChatwootChat extends StatefulWidget {
       required this.baseUrl,
       required this.inboxIdentifier,
       this.enablePersistence = true,
+	  this.initialMessage,
       this.user,
       this.appBar,
       this.onEndReached,
@@ -285,6 +289,15 @@ class _ChatwootChatState extends State<ChatwootChat> {
           error.toString(), ChatwootClientExceptionType.CREATE_CLIENT_FAILED));
       print("chatwoot client failed with error $error: $stackTrace");
     });
+	
+	// Check if initialMessage is not null and send it
+    if (widget.initialMessage != null && widget.initialMessage!.isNotEmpty) {
+      // Define the partial message data
+      types.PartialText message = types.PartialText(text: widget.initialMessage);
+
+      //send the initialMessage
+      _handleSendPressed(message);
+    }
   }
 
   types.TextMessage _chatwootMessageToTextMessage(ChatwootMessage message,
