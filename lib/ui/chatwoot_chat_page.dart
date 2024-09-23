@@ -172,7 +172,7 @@ class _ChatwootChatState extends State<ChatwootChat> {
   late final chatwootCallbacks;
 
   @override
-  void initState() async{
+  void initState() {
     super.initState();
 
     if (widget.user == null) {
@@ -273,26 +273,6 @@ class _ChatwootChatState extends State<ChatwootChat> {
       },
     );
 	
-	try{
-		final client = await ChatwootClient.create(
-            baseUrl: widget.baseUrl,
-            inboxIdentifier: widget.inboxIdentifier,
-            user: widget.user,
-            enablePersistence: widget.enablePersistence,
-            callbacks: chatwootCallbacks);
-			
-		setState(() {
-		  chatwootClient = client;
-		  chatwootClient!.loadMessages();  // Call loadMessages after client is created
-		});	
-	}catch (error, stackTrace) {
-		widget.onError?.call(ChatwootClientException(
-		  error.toString(),
-		  ChatwootClientExceptionType.CREATE_CLIENT_FAILED,
-		));
-		print("Chatwoot client failed with error $error: $stackTrace");
-	  }
-
     // ChatwootClient.create(
     //         baseUrl: widget.baseUrl,
     //         inboxIdentifier: widget.inboxIdentifier,
@@ -313,7 +293,27 @@ class _ChatwootChatState extends State<ChatwootChat> {
   }
   
   @override
-  void didChangeDependencies() {
+  void didChangeDependencies() async{
+  
+		try{
+		final client = await ChatwootClient.create(
+            baseUrl: widget.baseUrl,
+            inboxIdentifier: widget.inboxIdentifier,
+            user: widget.user,
+            enablePersistence: widget.enablePersistence,
+            callbacks: chatwootCallbacks);
+			
+		setState(() {
+		  chatwootClient = client;
+		  chatwootClient!.loadMessages();  // Call loadMessages after client is created
+		});	
+	}catch (error, stackTrace) {
+		widget.onError?.call(ChatwootClientException(
+		  error.toString(),
+		  ChatwootClientExceptionType.CREATE_CLIENT_FAILED,
+		));
+		print("Chatwoot client failed with error $error: $stackTrace");
+	  }
   
 	// Check if initialMessage is not null and send it
     if (widget.initialMessage != null && widget.initialMessage!.isNotEmpty) {
