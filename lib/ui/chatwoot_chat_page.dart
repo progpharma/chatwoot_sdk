@@ -123,7 +123,7 @@ class ChatwootChat extends StatefulWidget {
       required this.baseUrl,
       required this.inboxIdentifier,
       this.enablePersistence = true,
-	  this.initialMessage,
+	    this.initialMessage,
       this.user,
       this.appBar,
       this.onEndReached,
@@ -172,7 +172,7 @@ class _ChatwootChatState extends State<ChatwootChat> {
   late final chatwootCallbacks;
 
   @override
-  void initState() {
+  void initState() async{
     super.initState();
 
     if (widget.user == null) {
@@ -272,24 +272,49 @@ class _ChatwootChatState extends State<ChatwootChat> {
         widget.onError?.call(error);
       },
     );
-
-    ChatwootClient.create(
+	
+	try{
+		final client = await ChatwootClient.create(
             baseUrl: widget.baseUrl,
             inboxIdentifier: widget.inboxIdentifier,
             user: widget.user,
             enablePersistence: widget.enablePersistence,
-            callbacks: chatwootCallbacks)
-        .then((client) {
-      setState(() {
-        chatwootClient = client;
-        chatwootClient!.loadMessages();
-      });
-    }).onError((error, stackTrace) {
-      widget.onError?.call(ChatwootClientException(
-          error.toString(), ChatwootClientExceptionType.CREATE_CLIENT_FAILED));
-      print("chatwoot client failed with error $error: $stackTrace");
-    });
+            callbacks: chatwootCallbacks);
+			
+		setState(() {
+		  chatwootClient = client;
+		  chatwootClient!.loadMessages();  // Call loadMessages after client is created
+		});	
+	}catch (error, stackTrace) {
+		widget.onError?.call(ChatwootClientException(
+		  error.toString(),
+		  ChatwootClientExceptionType.CREATE_CLIENT_FAILED,
+		));
+		print("Chatwoot client failed with error $error: $stackTrace");
+	  }
+
+    // ChatwootClient.create(
+    //         baseUrl: widget.baseUrl,
+    //         inboxIdentifier: widget.inboxIdentifier,
+    //         user: widget.user,
+    //         enablePersistence: widget.enablePersistence,
+    //         callbacks: chatwootCallbacks)
+    //     .then((client) {
+    //   setState(() {
+    //     chatwootClient = client;
+    //     chatwootClient!.loadMessages();
+    //   });
+    // }).onError((error, stackTrace) {
+    //   widget.onError?.call(ChatwootClientException(
+    //       error.toString(), ChatwootClientExceptionType.CREATE_CLIENT_FAILED));
+    //   print("chatwoot client failed with error $error: $stackTrace");
+    // });
 	
+  }
+  
+  @override
+  void didChangeDependencies() {
+  
 	// Check if initialMessage is not null and send it
     if (widget.initialMessage != null && widget.initialMessage!.isNotEmpty) {
       // Define the partial message data
@@ -298,6 +323,8 @@ class _ChatwootChatState extends State<ChatwootChat> {
       //send the initialMessage
       _handleSendPressed(message);
     }
+	
+    super.didChangeDependencies();
   }
 
   types.TextMessage _chatwootMessageToTextMessage(ChatwootMessage message,
