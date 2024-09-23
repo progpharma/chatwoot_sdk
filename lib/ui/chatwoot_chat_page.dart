@@ -293,7 +293,7 @@ class _ChatwootChatState extends State<ChatwootChat> {
 	// Check if initialMessage is not null and send it
     if (widget.initialMessage != null && widget.initialMessage!.isNotEmpty) {
       // Define the partial message data
-      types.PartialText message = types.PartialText(text: widget.initialMessage);
+      types.PartialText message = types.PartialText(text: widget.initialMessage!);
 
       //send the initialMessage
       _handleSendPressed(message);
